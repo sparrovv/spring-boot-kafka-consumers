@@ -54,6 +54,9 @@ class ConsumerServiceIntegrationTest() {
     @Autowired
     private lateinit var identityStitchingProcessor: MessageProcessorTestImpl
 
+    @Autowired
+    private lateinit var kafkaManager : KafkaConsumersManager
+
     @Test
     fun `it consumes published messages in batches`() {
         identityStitchingProcessor.latch = CountDownLatch(10)

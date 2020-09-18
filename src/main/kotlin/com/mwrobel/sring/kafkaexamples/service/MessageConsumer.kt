@@ -23,8 +23,8 @@ class MessageConsumer(public val processor: MessageProcessor) {
     lateinit var topic :String
 
     @KafkaListener(
+            id = "\${main.consumer.id}",
             topics = arrayOf("\${main.input.topic}"),
-            groupId = "\${main.consumer.groupname}",
             autoStartup = "\${main.autostart}" // @todo would be good to stop / start on demand, same as in bar, not sure yet how?
     )
     fun receive(@Payload msgs: List<MyMessage>,

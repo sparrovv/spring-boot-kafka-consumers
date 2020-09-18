@@ -25,11 +25,7 @@ class ConsumerConfig {
         val factory: ConcurrentKafkaListenerContainerFactory<String, MyMessage> = ConcurrentKafkaListenerContainerFactory()
         factory.setConsumerFactory(consumerFactory())
         factory.setBatchListener(true)
-        // there are more options, explore later
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
-
-        // @todo learn what does it do
-//        factory.setBatchErrorHandler(BatchLoggingErrorHandler())
 
         return factory
     }
