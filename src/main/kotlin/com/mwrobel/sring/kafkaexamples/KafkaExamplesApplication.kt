@@ -6,9 +6,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.event.ContextRefreshedEvent
 import org.springframework.context.event.EventListener
-import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.web.bind.annotation.GetMapping
-import javax.annotation.PreDestroy
 import org.springframework.stereotype.Component
 
 /*
@@ -27,29 +24,6 @@ class StartupHousekeeper {
 
 @SpringBootApplication
 class KafkaExamplesApplication{
-	private val log = logger(this)
-
-	@Autowired
-	lateinit var kafkaConsumersManager: KafkaConsumersManager
-
-	@Autowired
-	lateinit var template: KafkaTemplate<String, String>
-
-	@PreDestroy
-	fun preDestroy() = stop()
-
-	@GetMapping("/start")
-	fun start(): String {
-        kafkaConsumersManager.start()
-		return "start"
-	}
-
-	@GetMapping("/stop")
-	fun stop(): String {
-		kafkaConsumersManager.stop()
-
-		return "stopped"
-	}
 }
 
 fun main(args: Array<String>) {

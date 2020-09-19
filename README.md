@@ -6,10 +6,27 @@
 - manual acks
 - integration test
 - custom serialization
-- abitlity to stop / start consumer through API calls
+- ability to stop / start consumer through API calls
+- creates topic if doesn't exist
 
-## How does it work?
+## How to run
+
+```
+docker-compose up
+```
+
+## Questions:
 
 We defined a custom Kafka consumer config, could that work with just props?
 
 - let's test it out
+
+## How does it all work?
+
+IOC container
+- is there only one, how it's all 
+
+Application Context 
+
+How to set up tests so I can inject a fake service?
+
