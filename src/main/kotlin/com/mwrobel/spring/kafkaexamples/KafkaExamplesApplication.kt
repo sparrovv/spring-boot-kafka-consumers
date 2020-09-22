@@ -1,6 +1,6 @@
-package com.mwrobel.sring.kafkaexamples
+package com.mwrobel.spring.kafkaexamples
 
-import com.mwrobel.sring.kafkaexamples.service.KafkaConsumersManager
+import com.mwrobel.spring.kafkaexamples.service.KafkaConsumersManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

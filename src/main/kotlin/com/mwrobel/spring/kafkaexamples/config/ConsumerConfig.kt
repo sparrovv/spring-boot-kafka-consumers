@@ -1,6 +1,6 @@
-package com.mwrobel.sring.kafkaexamples.config
+package com.mwrobel.spring.kafkaexamples.config
 
-import com.mwrobel.sring.kafkaexamples.dto.MyMessage
+import com.mwrobel.spring.kafkaexamples.dto.MyMessage
 import org.apache.kafka.clients.admin.NewTopic
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.common.serialization.StringDeserializer

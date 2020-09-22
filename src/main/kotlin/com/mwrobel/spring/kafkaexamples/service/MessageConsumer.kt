@@ -1,7 +1,7 @@
-package com.mwrobel.sring.kafkaexamples.service
+package com.mwrobel.spring.kafkaexamples.service
 
-import com.mwrobel.sring.kafkaexamples.dto.MyMessage
-import com.mwrobel.sring.kafkaexamples.logger
+import com.mwrobel.spring.kafkaexamples.dto.MyMessage
+import com.mwrobel.spring.kafkaexamples.logger
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -44,9 +44,9 @@ class MessageConsumer(public val processor: MessageProcessor) {
             errorHandler = "MessageConsumerErrorHandler"
     )
     fun receive(@Payload msgs: List<MyMessage>,
-                          @Header(KafkaHeaders.RECEIVED_PARTITION_ID) partitions: List<Int>,
-                          @Header(KafkaHeaders.OFFSET) offsets: List<Long>,
-                          @Header(KafkaHeaders.ACKNOWLEDGMENT) ack: Acknowledgment) {
+                @Header(KafkaHeaders.RECEIVED_PARTITION_ID) partitions: List<Int>,
+                @Header(KafkaHeaders.OFFSET) offsets: List<Long>,
+                @Header(KafkaHeaders.ACKNOWLEDGMENT) ack: Acknowledgment) {
         log.info("Consuming ${msgs.count()} messages from a '${topic}' topic")
 
         processor.process(msgs)

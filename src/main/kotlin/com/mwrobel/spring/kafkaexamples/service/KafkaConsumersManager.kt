@@ -1,6 +1,6 @@
-package com.mwrobel.sring.kafkaexamples.service
+package com.mwrobel.spring.kafkaexamples.service
 
-import com.mwrobel.sring.kafkaexamples.logger
+import com.mwrobel.spring.kafkaexamples.logger
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.config.KafkaListenerEndpointRegistry

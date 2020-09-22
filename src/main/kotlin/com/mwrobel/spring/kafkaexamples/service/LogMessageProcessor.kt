@@ -1,11 +1,11 @@
-package com.mwrobel.sring.kafkaexamples.service
+package com.mwrobel.spring.kafkaexamples.service
 
-import com.mwrobel.sring.kafkaexamples.dto.MyMessage
-import com.mwrobel.sring.kafkaexamples.logger
+import com.mwrobel.spring.kafkaexamples.dto.MyMessage
+import com.mwrobel.spring.kafkaexamples.logger
 import org.springframework.stereotype.Service
 
 @Service
-class LogMessageProcessor : MessageProcessor{
+class LogMessageProcessor : MessageProcessor {
     var processedMsgs = 0
     private val log = logger(this)
 

@@ -1,6 +1,8 @@
-package com.mwrobel.sring.kafkaexamples.service
+package com.mwrobel.spring.kafkaexamples
 
-import com.mwrobel.sring.kafkaexamples.dto.MyMessage
+import com.mwrobel.spring.kafkaexamples.dto.MyMessage
+import com.mwrobel.spring.kafkaexamples.service.KafkaConsumersManager
+import com.mwrobel.spring.kafkaexamples.service.MessageProcessor
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -9,20 +11,20 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.TestComponent
 import org.springframework.context.annotation.Bean
 import org.springframework.kafka.core.DefaultKafkaProducerFactory
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.kafka.core.ProducerFactory
 import org.springframework.kafka.test.EmbeddedKafkaBroker
 import org.springframework.kafka.test.context.EmbeddedKafka
-import org.springframework.stereotype.Component
 import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import java.util.*
 import java.util.concurrent.CountDownLatch
 
-@Component
+@TestComponent
 class MessageProcessorTestImpl() : MessageProcessor {
     private val container = mutableListOf<String>()
     lateinit var latch: CountDownLatch
@@ -38,7 +40,6 @@ class MessageProcessorTestImpl() : MessageProcessor {
         return container.size
     }
 }
-
 @ExtendWith(SpringExtension::class)
 @SpringBootTest()
 @DirtiesContext
@@ -86,4 +87,8 @@ class ConsumerServiceIntegrationTest() {
         return KafkaTemplate(kafkaProducerFactory())
     }
 
+//    @Bean
+//    fun foo(): MessageProcessor {
+//        return MessageProcessorTestImpl()
+//    }
 }
