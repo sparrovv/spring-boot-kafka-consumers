@@ -40,8 +40,8 @@ class MessageConsumer(public val processor: MessageProcessor) {
     @KafkaListener(
             id = "\${main.consumer.id}",
             topics = arrayOf("\${main.input.topic}"),
-            autoStartup = "\${main.autostart}",
-            errorHandler = "MessageConsumerErrorHandler"
+            autoStartup = "\${main.autostart}"
+//            errorHandler = "MessageConsumerErrorHandler"
     )
     fun receive(@Payload msgs: List<MyMessage>,
                 @Header(KafkaHeaders.RECEIVED_PARTITION_ID) partitions: List<Int>,

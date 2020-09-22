@@ -1,32 +1,32 @@
-# Spring boot kafka examples
+# Spring boot kafka consumer example
+
+This is an exploratory test app that checks how to achieve a few "standards" when writing a kafka consumer.
 
 ## What does it include?
 
-- an example of kafka batch consumer
-- manual acks
-- integration test
+- kafka batch consumer
+- manual ACKs
 - custom serialization
-- ability to stop / start consumer through API calls
-- creates topic if doesn't exist
+- ability to stop / start consumer through HTTP calls
+- topic creation if doesn't exist
+- integration test
+
+### Kafka batch consumer
+
+In certain scenarios batch consumer might be preferred, for instance when some external API supports batch operations.
 
 ## How to run
 
 ```
 docker-compose up
+./gradle bootRun
 ```
 
-## Questions:
+## Questions
 
-We defined a custom Kafka consumer config, could that work with just props?
+## Todos
 
-- let's test it out
-
-## How does it all work?
-
-IOC container
-- is there only one, how it's all 
-
-Application Context 
-
-How to set up tests so I can inject a fake service?
-
+- deserialization error handling
+- consumer error handling
+  - read more about https://docs.spring.io/spring-kafka/reference/html/#dead-letters
+  - https://stackoverflow.com/questions/51831034/spring-kafka-how-to-retry-with-kafkalistener?rq=1

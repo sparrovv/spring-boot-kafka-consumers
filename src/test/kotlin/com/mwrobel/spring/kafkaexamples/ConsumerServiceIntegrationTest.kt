@@ -40,24 +40,50 @@ class ConsumerServiceIntegrationTest() {
     private lateinit var template: KafkaTemplate<String, String>
 
     @Autowired
-    private lateinit var identityStitchingProcessor: MessageProcessor //TestImpl
+    private lateinit var identityStitchingProcessor: MessageProcessor
 
     @Autowired
     private lateinit var kafkaManager : KafkaConsumersManager
 
     @Test
     fun `it consumes published messages in batches`() {
-        val foo = identityStitchingProcessor as MessageProcessorTestImpl
-        foo.latch = CountDownLatch(10)
+        val msgProcessor = identityStitchingProcessor as MessageProcessorTestImpl
+        msgProcessor.latch = CountDownLatch(10)
 
         (1..10).map{
             """{"id" : "${it}", "outcome": "foo"}"""
         }.forEach{
             this.template.send("test-topic", it)
         }
-        foo.latch.await(4, java.util.concurrent.TimeUnit.SECONDS)
+        msgProcessor.latch.await(4, java.util.concurrent.TimeUnit.SECONDS)
 
         assertEquals(10, identityStitchingProcessor.size())
+    }
+
+    @Test
+    fun `it logs and notifies when it can't deserialize a message`() {
+        val msgProcessorr = identityStitchingProcessor as MessageProcessorTestImpl
+        msgProcessorr.latch = CountDownLatch(2)
+
+        this.template.send("test-topic", """{"foo-bar" : "${1}", "hey": ""}""")
+        this.template.send("test-topic", """{"id" : "${1}", "outcome": "foo"}""")
+        this.template.send("test-topic", """{"id" : "${4}", "outcome": "foo"}""")
+
+        msgProcessorr.latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
+
+        assertEquals(2, identityStitchingProcessor.size())
+    }
+
+    @Test
+    fun `it retries later a message that has failed`() {
+        val msgProcessor = identityStitchingProcessor as MessageProcessorTestImpl
+        msgProcessor.latch = CountDownLatch(1)
+
+        this.template.send("test-topic", """{"id" : "${1}", "outcome": "fail-on-me-thre-times"}""")
+
+        msgProcessor.latch.await(1, java.util.concurrent.TimeUnit.SECONDS)
+
+        assertEquals(1, identityStitchingProcessor.size())
     }
 
     @Bean
