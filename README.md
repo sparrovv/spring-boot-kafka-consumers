@@ -22,11 +22,41 @@ docker-compose up
 ./gradle bootRun
 ```
 
+### Common scenarios
+
+#### Consume one by one
+
+Advantage:
+
+- out of the box error handling.
+
+Questions:
+
+- when is it acked?
+- does it run in sequence?
+- how to define an error handler?
+- how to ensure idempotent consumer?
+
+### Batch
+
+#### How to handle exceptions in batch
+
+### DLQ
+
+## Error Handlers
+    
+See Seek To Current Container Error Handlers, Recovering Batch Error Handler, Publishing Dead-letter Records and After-rollback Processor for more information.
+
 ## Questions
 
-## Todos
+How can we recover from the batch failure?:
+- try to reprocess a batch again, at least for few times
+
+## Todos / References
 
 - deserialization error handling
 - consumer error handling
+  - https://www.confluent.io/blog/spring-for-apache-kafka-deep-dive-part-1-error-handling-message-conversion-transaction-support/
   - read more about https://docs.spring.io/spring-kafka/reference/html/#dead-letters
   - https://stackoverflow.com/questions/51831034/spring-kafka-how-to-retry-with-kafkalistener?rq=1
+  - https://stackoverflow.com/questions/49507709/dead-letter-queue-dlq-for-kafka-with-spring-kafka

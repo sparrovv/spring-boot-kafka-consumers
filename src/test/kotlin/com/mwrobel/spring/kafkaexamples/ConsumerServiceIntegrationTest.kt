@@ -2,10 +2,11 @@ package com.mwrobel.spring.kafkaexamples
 
 import com.mwrobel.spring.kafkaexamples.service.KafkaConsumersManager
 import com.mwrobel.spring.kafkaexamples.service.MessageProcessor
-import com.mwrobel.spring.kafkaexamples.service.MessageProcessorTestImpl
+import com.mwrobel.spring.kafkaexamples.service.TestMessageProcessor
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.common.serialization.StringSerializer
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,8 +47,8 @@ class ConsumerServiceIntegrationTest() {
     private lateinit var kafkaManager : KafkaConsumersManager
 
     @Test
-    fun `it consumes published messages in batches`() {
-        val msgProcessor = identityStitchingProcessor as MessageProcessorTestImpl
+    fun `when no exceptions it consumes published messages in batches`() {
+        val msgProcessor = identityStitchingProcessor as TestMessageProcessor
         msgProcessor.latch = CountDownLatch(10)
 
         (1..10).map{
@@ -61,30 +62,49 @@ class ConsumerServiceIntegrationTest() {
     }
 
     @Test
-    fun `it logs and notifies when it can't deserialize a message`() {
-        val msgProcessorr = identityStitchingProcessor as MessageProcessorTestImpl
+    fun `when there's a serialization exception it returns nulls`() {
+        // this is not ideal :/ Must be a better way
+        val msgProcessorr = identityStitchingProcessor as TestMessageProcessor
         msgProcessorr.latch = CountDownLatch(2)
 
-        this.template.send("test-topic", """{"foo-bar" : "${1}", "hey": ""}""")
-        this.template.send("test-topic", """{"id" : "${1}", "outcome": "foo"}""")
-        this.template.send("test-topic", """{"id" : "${4}", "outcome": "foo"}""")
+        this.template.send("test-topic", """{"id" : "1", "outcome": "foo"}""")
+        this.template.send("test-topic", """{"oo" : "1"}""")
+        this.template.send("test-topic", """{"id" : "1", "outcome": "foo"}""")
 
         msgProcessorr.latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
 
         assertEquals(2, identityStitchingProcessor.size())
+        // how to do this
     }
 
     @Test
-    fun `it retries later a message that has failed`() {
-        val msgProcessor = identityStitchingProcessor as MessageProcessorTestImpl
-        msgProcessor.latch = CountDownLatch(1)
+    fun `when there's an exception, it sends a message to dlq topic`() {
+        val msgProcessorr = identityStitchingProcessor as TestMessageProcessor
+        msgProcessorr.maxNumberOfExceptions = 2
+        msgProcessorr.latch = CountDownLatch(2)
 
-        this.template.send("test-topic", """{"id" : "${1}", "outcome": "fail-on-me-thre-times"}""")
+        this.template.send("test-topic", """{"id" : "1", "outcome": "foo"}""")
+        this.template.send("test-topic", """{"id" : "2", "outcome": "exception"}""")
+        this.template.send("test-topic", """{"id" : "3", "outcome": "bar"}""")
 
-        msgProcessor.latch.await(1, java.util.concurrent.TimeUnit.SECONDS)
+        msgProcessorr.latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
 
-        assertEquals(1, identityStitchingProcessor.size())
+        assertEquals(2, identityStitchingProcessor.size())
+        // Need an assertion on dlq topic.
+        //
     }
+
+//    @Test @Disabled
+//    fun `it retries later a message that has failed`() {
+//        val msgProcessor = identityStitchingProcessor as MessageProcessorTestImpl
+//        msgProcessor.latch = CountDownLatch(1)
+//
+//        this.template.send("test-topic", """{"id" : "${1}", "outcome": "fail-on-me-thre-times"}""")
+//
+//        msgProcessor.latch.await(1, java.util.concurrent.TimeUnit.SECONDS)
+//
+//        assertEquals(1, identityStitchingProcessor.size())
+//    }
 
     @Bean
     fun kafkaProducerFactory(): ProducerFactory<String, String> {
@@ -105,7 +125,7 @@ class ConsumerServiceIntegrationTest() {
     class MessageProcessorConf {
         @Bean @Primary
         fun testProcessor(): MessageProcessor {
-            return MessageProcessorTestImpl()
+            return TestMessageProcessor()
         }
     }
 }

@@ -9,11 +9,14 @@ class LogMessageProcessor : MessageProcessor {
     var processedMsgs = 0
     private val log = logger(this)
 
-    override fun process(events: List<MyMessage>) {
+    override fun process(events: List<MyMessage?>) {
         events.forEach{
-            log.info(it.id)
-
-            processedMsgs += 1
+            if (it != null) {
+                log.info(it.id)
+                processedMsgs += 1
+            } else {
+                log.warn("There was a null entry")
+            }
         }
     }
 

@@ -11,7 +11,9 @@ import org.springframework.kafka.annotation.EnableKafka
 import org.springframework.kafka.config.ConcurrentKafkaListenerContainerFactory
 import org.springframework.kafka.core.ConsumerFactory
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory
+import org.springframework.kafka.listener.BatchLoggingErrorHandler
 import org.springframework.kafka.listener.ContainerProperties
+import org.springframework.kafka.listener.SeekToCurrentBatchErrorHandler
 import org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
 import org.springframework.kafka.support.serializer.JsonDeserializer
 import java.util.*
@@ -27,43 +29,45 @@ class ConsumerConfig {
     private lateinit var mainTopic: String
 
     @Bean
-    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, String> {
-        val factory: ConcurrentKafkaListenerContainerFactory<String, String> = ConcurrentKafkaListenerContainerFactory()
+    fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, MyMessage> {
+        val factory: ConcurrentKafkaListenerContainerFactory<String, MyMessage> = ConcurrentKafkaListenerContainerFactory()
         factory.setConsumerFactory(consumerFactory())
         factory.setBatchListener(true)
+        factory.setBatchErrorHandler(SeekToCurrentBatchErrorHandler())
+//        BatchLoggingErrorHandler
         factory.getContainerProperties().setAckMode(ContainerProperties.AckMode.MANUAL_IMMEDIATE);
 
         return factory
     }
 
     @Bean
-    fun consumerFactory(): ConsumerFactory<String, String> {
+    fun consumerFactory(): ConsumerFactory<String, MyMessage> {
         val props: MutableMap<String, Any?> = HashMap()
 
         props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
         props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "latest"
         props[ConsumerConfig.MAX_POLL_RECORDS_CONFIG]  = "10000"
         props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG]  = "false"
+
         // Settings needed for Deserialization ErrorHandling
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
         props[ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG] = StringDeserializer::class.java
+
         props[ErrorHandlingDeserializer.VALUE_DESERIALIZER_CLASS] = JsonDeserializer::class.java.getName()
+
         props[JsonDeserializer.VALUE_DEFAULT_TYPE] =  MyMessage::class.java.getName()
         props[JsonDeserializer.TRUSTED_PACKAGES] = MyMessage::class.java.packageName
 
-
-
-//        return DefaultKafkaConsumerFactory(
-//                props,
-//                StringDeserializer(),
-//                JsonDeserializer(MyMessage::class.java, false)
-//        )
-
-        return DefaultKafkaConsumerFactory(props);
+        return DefaultKafkaConsumerFactory(props)
     }
 
     @Bean
     fun createMainTopicIfDoesntExist(): NewTopic? {
         return NewTopic(mainTopic, 1, 1.toShort())
+    }
+
+    @Bean
+    fun createMainTopicDLTIfDoesntExist(): NewTopic? {
+        return NewTopic(mainTopic + ".dlt", 1, 1.toShort())
     }
 }
