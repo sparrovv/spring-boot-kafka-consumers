@@ -10,16 +10,27 @@ class TestMessageProcessor() : MessageProcessor {
     var maxNumberOfExceptions: Int = 2
     var numberOfExceptions = 0
 
-    override fun process(events: List<MyMessage?>) {
-        events.filterNotNull().forEach{
+    override fun process(events: List<MyMessage>): ProcessResult {
+        val notProcessed: MutableList<MyMessage> = mutableListOf()
+
+        events.asSequence().forEach lit@{
             println("I'm in a loop: ${it}")
             if (it.outcome == "exception" && numberOfExceptions < maxNumberOfExceptions) {
+                // process should receive the number of exceptions somehow
                 numberOfExceptions += 1
                 throw RuntimeException("well, this won't work")
+            }
+            if (numberOfExceptions == maxNumberOfExceptions) {
+                numberOfExceptions = 0
+                notProcessed.add(it)
+                // local return
+                return@lit
             }
             container.add(it.id)
             latch.countDown()
         }
+
+        return ProcessResult(events - notProcessed, notProcessed = notProcessed)
     }
 
     override fun size(): Int {

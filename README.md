@@ -60,3 +60,4 @@ How can we recover from the batch failure?:
   - read more about https://docs.spring.io/spring-kafka/reference/html/#dead-letters
   - https://stackoverflow.com/questions/51831034/spring-kafka-how-to-retry-with-kafkalistener?rq=1
   - https://stackoverflow.com/questions/49507709/dead-letter-queue-dlq-for-kafka-with-spring-kafka
+  - https://github.com/spring-projects/spring-kafka/blob/master/src/reference/asciidoc/testing.adoc

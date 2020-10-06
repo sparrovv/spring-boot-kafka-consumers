@@ -1,5 +1,6 @@
 package com.mwrobel.spring.kafkaexamples.controller
 
+import com.mwrobel.spring.kafkaexamples.dto.MyMessage
 import com.mwrobel.spring.kafkaexamples.service.KafkaConsumersManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -20,7 +21,7 @@ class ConsumerController {
     lateinit var kafkaConsumersManager: KafkaConsumersManager
 
     @Autowired
-    lateinit var template: KafkaTemplate<String, String>
+    lateinit var template: KafkaTemplate<String, MyMessage>
 
     @Value("\${main.input.topic}")
     lateinit var topic: String
@@ -41,7 +42,7 @@ class ConsumerController {
 
     @GetMapping("/produce")
     fun produce(): Outcome {
-        val message = """{"random":"${Random.nextInt()}"}"""
+        val message = MyMessage(id = Random.nextInt().toString(), outcome = "yo")
         val future = template.send(topic, message)
         future.get()
 
