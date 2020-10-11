@@ -1,11 +1,10 @@
 package com.mwrobel.spring.kafkaexamples.controller
 
 import com.mwrobel.spring.kafkaexamples.dto.MyMessage
-import com.mwrobel.spring.kafkaexamples.service.KafkaConsumersManager
+import com.mwrobel.spring.kafkaexamples.service.BatchConsumerManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.core.KafkaTemplate
-import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -18,24 +17,24 @@ data class Outcome(val outcome: String)
 class ConsumerController {
 
     @Autowired
-    lateinit var kafkaConsumersManager: KafkaConsumersManager
+    lateinit var batchConsumerManager: BatchConsumerManager
 
     @Autowired
     lateinit var template: KafkaTemplate<String, MyMessage>
 
-    @Value("\${main.input.topic}")
+    @Value("\${main.batch-input.topic}")
     lateinit var topic: String
 
     @GetMapping("/start")
     fun start(): Outcome {
-        kafkaConsumersManager.start()
+        batchConsumerManager.start()
 
         return Outcome("start")
     }
 
     @GetMapping("/stop")
     fun stop(): Outcome {
-        kafkaConsumersManager.stop()
+        batchConsumerManager.stop()
 
         return Outcome("stop")
     }

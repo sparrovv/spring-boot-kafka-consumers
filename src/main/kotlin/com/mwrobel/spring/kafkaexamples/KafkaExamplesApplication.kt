@@ -1,6 +1,7 @@
 package com.mwrobel.spring.kafkaexamples
 
-import com.mwrobel.spring.kafkaexamples.service.KafkaConsumersManager
+import com.mwrobel.spring.kafkaexamples.service.BatchConsumerManager
+import com.mwrobel.spring.kafkaexamples.service.SingleMsgConsumerManager
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
@@ -14,11 +15,16 @@ import org.springframework.stereotype.Component
 @Component
 class StartupHousekeeper {
 	@Autowired
-	lateinit var kafkaConsumersManager: KafkaConsumersManager
+	lateinit var batchConsumerManager: BatchConsumerManager
+
+	@Autowired
+	lateinit var a2MsgConsumerManager: SingleMsgConsumerManager
+
 
 	@EventListener(ContextRefreshedEvent::class)
 	fun contextRefreshedEvent():Unit {
-        kafkaConsumersManager.start()
+        batchConsumerManager.start()
+		a2MsgConsumerManager.start()
 	}
 }
 

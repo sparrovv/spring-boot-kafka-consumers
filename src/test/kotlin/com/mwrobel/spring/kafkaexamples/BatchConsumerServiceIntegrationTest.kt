@@ -1,12 +1,10 @@
 package com.mwrobel.spring.kafkaexamples
 
-import com.mwrobel.spring.kafkaexamples.dto.MyMessage
-import com.mwrobel.spring.kafkaexamples.service.KafkaConsumersManager
+import com.mwrobel.spring.kafkaexamples.service.BatchConsumerManager
 import com.mwrobel.spring.kafkaexamples.service.MessageProcessor
 import com.mwrobel.spring.kafkaexamples.service.TestMessageProcessor
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.common.serialization.StringDeserializer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -32,8 +30,8 @@ import java.util.concurrent.CountDownLatch
 @SpringBootTest()
 @DirtiesContext
 @ActiveProfiles("test")
-@EmbeddedKafka(topics = arrayOf("\${main.input.topic}", "test-topic.dlq"))
-class ConsumerServiceIntegrationTest() {
+@EmbeddedKafka(topics = arrayOf("\${main.batch-input.topic}", "test-topic.dlq"))
+class BatchConsumerServiceIntegrationTest() {
     @Value("\${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
     private lateinit var brokerAddresses: String
 
@@ -47,7 +45,7 @@ class ConsumerServiceIntegrationTest() {
     private lateinit var identityStitchingProcessor: MessageProcessor
 
     @Autowired
-    private lateinit var kafkaManager : KafkaConsumersManager
+    private lateinit var kafkaManager : BatchConsumerManager
 
     @Test
     fun `when no exceptions it consumes published messages in batches`() {

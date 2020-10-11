@@ -1,6 +1,6 @@
 package com.mwrobel.spring.kafkaexamples.service
 
-import com.mwrobel.spring.kafkaexamples.dto.MyMessage
+import com.mwrobel.spring.kafkaexamples.dto.Message
 import java.lang.RuntimeException
 import java.util.concurrent.CountDownLatch
 
@@ -10,8 +10,8 @@ class TestMessageProcessor() : MessageProcessor {
     var maxNumberOfExceptions: Int = 2
     var numberOfExceptions = 0
 
-    override fun process(events: List<MyMessage>): ProcessResult {
-        val notProcessed: MutableList<MyMessage> = mutableListOf()
+    override fun process(events: List<Message>): ProcessResult {
+        val notProcessed: MutableList<Message> = mutableListOf()
 
         events.asSequence().forEach lit@{
             println("I'm in a loop: ${it}")

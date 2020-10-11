@@ -1,5 +1,6 @@
 package com.mwrobel.spring.kafkaexamples.service
 
+import com.mwrobel.spring.kafkaexamples.dto.Message
 import com.mwrobel.spring.kafkaexamples.dto.MyMessage
 import com.mwrobel.spring.kafkaexamples.logger
 import org.apache.tomcat.jni.Proc
@@ -10,7 +11,7 @@ class LogMessageProcessor : MessageProcessor {
     var processedMsgs = 0
     private val log = logger(this)
 
-    override fun process(events: List<MyMessage>): ProcessResult {
+    override fun process(events: List<Message>): ProcessResult {
         events.forEach{
             if (it != null) {
                 log.info(it.id)

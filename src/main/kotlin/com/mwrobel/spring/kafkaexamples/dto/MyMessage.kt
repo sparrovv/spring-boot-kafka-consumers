@@ -1,3 +1,8 @@
 package com.mwrobel.spring.kafkaexamples.dto
 
-data class MyMessage(val id: String, val outcome: String)
+interface Message {
+    val id:String
+    val outcome:String
+}
+
+data class MyMessage(override val id: String, override val outcome: String) : Message

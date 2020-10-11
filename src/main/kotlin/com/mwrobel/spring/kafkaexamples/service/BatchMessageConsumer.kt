@@ -1,5 +1,6 @@
 package com.mwrobel.spring.kafkaexamples.service
 
+import com.mwrobel.spring.kafkaexamples.dto.Message
 import com.mwrobel.spring.kafkaexamples.dto.MyMessage
 import com.mwrobel.spring.kafkaexamples.logger
 import org.apache.kafka.clients.consumer.ConsumerRecord
@@ -15,27 +16,26 @@ import java.io.ByteArrayInputStream
 import java.io.ObjectInput
 import java.io.ObjectInputStream
 
-class MyMaxException(message: String, val data: MyMessage): Exception(message)
-data class ProcessResult(val processed: List<MyMessage>, val notProcessed: List<MyMessage>)
+data class ProcessResult(val processed: List<Message>, val notProcessed: List<Message>)
 interface MessageProcessor {
-    fun process(events: List<MyMessage>): ProcessResult
+    fun process(events: List<Message>): ProcessResult
     fun size():Int
 }
 
 
 @Service
-class MessageConsumer(public val processor: MessageProcessor) {
+class BatchMessageConsumer(public val processor: MessageProcessor) {
     val log = logger(this)
 
-    @Value("\${main.input.topic}")
+    @Value("\${main.batch-input.topic}")
     lateinit var topic :String
 
     @Autowired
     lateinit var sender: KafkaTemplate<String, MyMessage>
 
     @KafkaListener(
-            id = "\${main.consumer.id}",
-            topics = arrayOf("\${main.input.topic}"),
+            id = "\${main.batch-consumer.id}",
+            topics = arrayOf("\${main.batch-input.topic}"),
             autoStartup = "\${main.autostart}"
 //            errorHandler = "MessageConsumerErrorHandler"
     )
@@ -51,7 +51,7 @@ class MessageConsumer(public val processor: MessageProcessor) {
         val result = processor.process(notNullMsgs)
 
         result.notProcessed.forEach{
-            sender.send(topic + ".dlq", it)
+            sender.send(topic + ".dlq", it as MyMessage)
         }
 
         ack.acknowledge()
