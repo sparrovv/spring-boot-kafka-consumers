@@ -21,12 +21,6 @@ import java.lang.RuntimeException
 class SingleMessageConsumer(public val processor: MessageProcessor) {
     val log = logger(this)
 
-    @Value("\${main.single-input.topic}")
-    lateinit var topic :String
-
-    @Autowired
-    lateinit var sender: KafkaTemplate<String, MyEvent>
-
     @KafkaListener(
             id = "\${main.single-consumer.id}",
             topics = arrayOf("\${main.single-input.topic}"),

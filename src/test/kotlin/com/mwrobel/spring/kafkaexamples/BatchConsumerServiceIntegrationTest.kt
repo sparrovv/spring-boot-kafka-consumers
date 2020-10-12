@@ -48,9 +48,6 @@ class BatchConsumerServiceIntegrationTest() {
     @Autowired
     private lateinit var messageProcessor: MessageProcessor
 
-    @Autowired
-    private lateinit var kafkaManager : BatchConsumerManager
-
     @AfterEach
     fun afterEach():Unit {
         val msgProcessor = messageProcessor as TestMessageProcessor

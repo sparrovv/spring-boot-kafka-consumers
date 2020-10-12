@@ -22,7 +22,6 @@ interface MessageProcessor {
     fun size():Int
 }
 
-
 @Service
 class BatchMessageConsumer(public val processor: MessageProcessor) {
     val log = logger(this)

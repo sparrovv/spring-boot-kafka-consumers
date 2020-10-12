@@ -7,13 +7,12 @@ This test app explores [spring-kafka](https://docs.spring.io/spring-kafka/docs/2
 - Standard methods of consuming messages in spring kafka.
   - One by one message listener
   - Batch listener
-- JSON serializers
-    - Handling serialization exceptions
+- JSON serializers and handling serialization exceptions
 - Ability to stop / start consumers through HTTP calls
 - SeekToCurrent error handler with DLT(dead letter topic) recovery
 - Topics creation if don't exist
 - Integration tests with embedded kafka
-- Manual ACKs ()
+- Manual ACKs in Batch Listener
 
 ![spring-kafka.png](./spring-kafka.png)
 
@@ -27,10 +26,13 @@ The simplest way to start with spring kafka is to implement one by one message l
 
 What do you need:
 
-- configuration for kafka consumers
-- configuration for spring kafka container factory
-- configuration for kafka producer
-- ...
+- spring-boot and spring-kafka dependencies
+- configure kafka consumer factory
+- configure spring kafka container factory
+- configure kafka factory producer
+- enable kafka annotation
+- KafkaListener annotation
+
 
 ### Kafka batch listener
 
