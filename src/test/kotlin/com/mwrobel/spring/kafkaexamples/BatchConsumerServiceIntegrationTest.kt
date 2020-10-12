@@ -1,6 +1,5 @@
 package com.mwrobel.spring.kafkaexamples
 
-import com.mwrobel.spring.kafkaexamples.service.BatchConsumerManager
 import com.mwrobel.spring.kafkaexamples.service.MessageProcessor
 import com.mwrobel.spring.kafkaexamples.service.TestMessageProcessor
 import org.apache.kafka.clients.consumer.Consumer

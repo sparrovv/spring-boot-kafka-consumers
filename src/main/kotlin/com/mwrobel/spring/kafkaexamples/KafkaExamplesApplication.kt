@@ -1,8 +1,8 @@
 package com.mwrobel.spring.kafkaexamples
 
-import com.mwrobel.spring.kafkaexamples.service.BatchConsumerManager
-import com.mwrobel.spring.kafkaexamples.service.SingleMsgConsumerManager
+import com.mwrobel.spring.kafkaexamples.service.KafkaConsumersManager
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
 import org.springframework.context.event.ContextRefreshedEvent
@@ -15,10 +15,12 @@ import org.springframework.stereotype.Component
 @Component
 class StartupHousekeeper {
 	@Autowired
-	lateinit var batchConsumerManager: BatchConsumerManager
+	@Qualifier("batchManager")
+	lateinit var batchConsumerManager: KafkaConsumersManager
 
 	@Autowired
-	lateinit var oneByOneMsgConsumer: SingleMsgConsumerManager
+	@Qualifier("oneByOneManager")
+	lateinit var oneByOneMsgConsumer: KafkaConsumersManager
 
 
 	@EventListener(ContextRefreshedEvent::class)

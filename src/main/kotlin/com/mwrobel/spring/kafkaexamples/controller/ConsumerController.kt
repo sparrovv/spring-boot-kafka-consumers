@@ -2,17 +2,16 @@ package com.mwrobel.spring.kafkaexamples.controller
 
 import com.mwrobel.spring.kafkaexamples.dto.MyEvent
 import com.mwrobel.spring.kafkaexamples.dto.MyMessage
-import com.mwrobel.spring.kafkaexamples.service.BatchConsumerManager
+import com.mwrobel.spring.kafkaexamples.service.KafkaConsumersManager
 import com.mwrobel.spring.kafkaexamples.service.MessageProcessor
-import com.mwrobel.spring.kafkaexamples.service.SingleMsgConsumerManager
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Qualifier
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.kafka.core.KafkaTemplate
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
-import kotlin.math.sin
 import kotlin.random.Random
 
 data class Outcome(val outcome: String)
@@ -25,10 +24,12 @@ class ConsumerController {
     lateinit var msgProcessor: MessageProcessor
 
     @Autowired
-    lateinit var batchConsumerManager: BatchConsumerManager
+    @Qualifier("batchManager")
+    lateinit var batchConsumerManager: KafkaConsumersManager
 
     @Autowired
-    lateinit var singleConsumerManager: SingleMsgConsumerManager
+    @Qualifier("oneByOneManager")
+    lateinit var oneByOneMsgConsumer: KafkaConsumersManager
 
     @Autowired
     lateinit var template: KafkaTemplate<String, MyMessage>
@@ -44,12 +45,12 @@ class ConsumerController {
 
     @GetMapping("/start")
     fun start(
-            @RequestParam(name = "id", required = true, defaultValue = "none") consumer_id: String
+            @RequestParam(name = "id", required = true) consumer_id: String
     ): Outcome {
         if(consumer_id == batchConsumerManager.consumerId){
             batchConsumerManager.start()
         } else {
-            singleConsumerManager.start()
+            oneByOneMsgConsumer.start()
         }
 
         return Outcome("start")
@@ -57,15 +58,28 @@ class ConsumerController {
 
     @GetMapping("/stop")
     fun stop(
-            @RequestParam(name = "id", required = true, defaultValue = "none") consumer_id: String
+            @RequestParam(name = "id", required = true) consumer_id: String
     ): Outcome {
         if(consumer_id == batchConsumerManager.consumerId){
             batchConsumerManager.stop()
         } else {
-            singleConsumerManager.stop()
+            oneByOneMsgConsumer.stop()
         }
 
         return Outcome("stop")
+    }
+
+    @GetMapping("/status")
+    fun status(
+            @RequestParam(name = "id", required = true) consumer_id: String
+    ): Outcome {
+        val status = if(consumer_id == batchConsumerManager.consumerId){
+            batchConsumerManager.status()
+        } else {
+            oneByOneMsgConsumer.status()
+        }
+
+        return Outcome(status)
     }
 
     @GetMapping("/produceMessage")
