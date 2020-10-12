@@ -37,7 +37,6 @@ class BatchMessageConsumer(public val processor: MessageProcessor) {
             id = "\${main.batch-consumer.id}",
             topics = arrayOf("\${main.batch-input.topic}"),
             autoStartup = "\${main.autostart}"
-//            errorHandler = "MessageConsumerErrorHandler"
     )
     fun receive(msgs: List<ConsumerRecord<String, MyMessage>>, ack: Acknowledgment) {
         log.info("Consuming ${msgs.count()} messages from a '${topic}' topic")
