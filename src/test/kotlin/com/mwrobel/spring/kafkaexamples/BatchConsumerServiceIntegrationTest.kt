@@ -5,6 +5,7 @@ import com.mwrobel.spring.kafkaexamples.service.MessageProcessor
 import com.mwrobel.spring.kafkaexamples.service.TestMessageProcessor
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -30,10 +31,13 @@ import java.util.concurrent.CountDownLatch
 @SpringBootTest()
 @DirtiesContext
 @ActiveProfiles("test")
-@EmbeddedKafka(topics = arrayOf("\${main.batch-input.topic}", "test-topic.dlq"))
+@EmbeddedKafka(topics = arrayOf("\${main.batch-input.topic}", "\${main.batch-input.topic}.DLT"))
 class BatchConsumerServiceIntegrationTest() {
     @Value("\${" + EmbeddedKafkaBroker.SPRING_EMBEDDED_KAFKA_BROKERS + "}")
     private lateinit var brokerAddresses: String
+
+    @Value("\${main.batch-input.topic}")
+    private lateinit var mainTopic: String
 
     @Autowired
     private lateinit var embeddedKafka: EmbeddedKafkaBroker
@@ -47,6 +51,13 @@ class BatchConsumerServiceIntegrationTest() {
     @Autowired
     private lateinit var kafkaManager : BatchConsumerManager
 
+    @AfterEach
+    fun afterEach():Unit {
+        val msgProcessor = identityStitchingProcessor as TestMessageProcessor
+
+        msgProcessor.reset()
+    }
+
     @Test
     fun `when no exceptions it consumes published messages in batches`() {
         val msgProcessor = identityStitchingProcessor as TestMessageProcessor
@@ -55,7 +66,7 @@ class BatchConsumerServiceIntegrationTest() {
         (1..10).map{
             """{"id" : "${it}", "outcome": "foo"}"""
         }.forEach{
-            this.template.send("test-topic", it)
+            template.send(mainTopic, it)
         }
         msgProcessor.latch.await(4, java.util.concurrent.TimeUnit.SECONDS)
 
@@ -68,9 +79,9 @@ class BatchConsumerServiceIntegrationTest() {
         val msgProcessorr = identityStitchingProcessor as TestMessageProcessor
         msgProcessorr.latch = CountDownLatch(2)
 
-        this.template.send("test-topic", """{"id" : "1", "outcome": "foo"}""")
-        this.template.send("test-topic", """{"oo" : "1"}""")
-        this.template.send("test-topic", """{"id" : "1", "outcome": "foo"}""")
+        this.template.send(mainTopic, """{"id" : "1", "outcome": "foo"}""")
+        this.template.send(mainTopic, """{"oo" : "1"}""")
+        this.template.send(mainTopic, """{"id" : "1", "outcome": "foo"}""")
 
         msgProcessorr.latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
 
@@ -78,36 +89,24 @@ class BatchConsumerServiceIntegrationTest() {
     }
 
     @Test
-    fun `when there's an exception, it retries and sends the batch to dlq topic`() {
+    fun `when there's an exception, it retries and sends the batch to dlt topic`() {
         val msgProcessorr = identityStitchingProcessor as TestMessageProcessor
         msgProcessorr.maxNumberOfExceptions = 2
         msgProcessorr.latch = CountDownLatch(2)
 
-        this.template.send("test-topic", """{"id" : "1", "outcome": "foo"}""")
-        this.template.send("test-topic", """{"id" : "2", "outcome": "exception"}""")
-        this.template.send("test-topic", """{"id" : "3", "outcome": "bar"}""")
+        this.template.send(mainTopic, """{"id" : "1", "outcome": "foo"}""")
+        this.template.send(mainTopic, """{"id" : "2", "outcome": "exception"}""")
+        this.template.send(mainTopic, """{"id" : "3", "outcome": "bar"}""")
 
         msgProcessorr.latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
 
         assertEquals(2, identityStitchingProcessor.size())
 
-        val consumer = createTestConsumer(groupName = "test-group", topic = "test-topic.dlq")
+        val consumer = createTestConsumer(groupName = "test-group", topic = "${mainTopic}.DLT")
         val records = KafkaTestUtils.getRecords<String, String>(consumer)
 
         assertEquals(records.count(), 1)
     }
-
-//    @Test
-//    fun `it retries later a message that has failed`() {
-//        val msgProcessor = identityStitchingProcessor as MessageProcessorTestImpl
-//        msgProcessor.latch = CountDownLatch(1)
-//
-//        this.template.send("test-topic", """{"id" : "${1}", "outcome": "fail-on-me-thre-times"}""")
-//
-//        msgProcessor.latch.await(1, java.util.concurrent.TimeUnit.SECONDS)
-//
-//        assertEquals(1, identityStitchingProcessor.size())
-//    }
 
     @TestConfiguration
     class MessageProcessorConf {

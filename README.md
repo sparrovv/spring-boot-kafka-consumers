@@ -1,17 +1,28 @@
 # Spring boot kafka consumer example
 
-This is an exploratory test app that checks how to achieve a few "standards" when writing a kafka consumer.
+This test app explores [spring-kafka](https://docs.spring.io/spring-kafka/docs/2.5.6.RELEASE/reference/html/) capabilities and tries to define some easy to follow templates for creating kafka consuemrs in spring boot.
 
 ## What does it include?
 
-- kafka batch consumer
-- manual ACKs
-- custom serialization
-- ability to stop / start consumer through HTTP calls
-- topic creation if doesn't exist
-- integration test
+- Standard methods of consuming messages in spring kafka.
+  - Batch listener
+  - Single message listener
+- JSON serializers
+    - Handling serialization exceptions
+- Ability to stop / start consumers through HTTP calls
+- SeekToCurrent error handler with DLT(dead letter topic) recoverer
+- Topics creation if don't exist
+- Integration tests with embedded kafka
+- Manual ACKs
 
-### Kafka batch consumer
+### Standard kafka one by one message listener
+
+The simplest way is to start with one by one message listener as it has a few goodies that are easy to configure:
+
+- out of the box error handling.
+- out of the box DLT recoverer
+
+### Kafka batch listener
 
 In certain scenarios batch consumer might be preferred, for instance when some external API supports batch operations.
 
@@ -26,22 +37,11 @@ docker-compose up
 
 #### Consume one by one
 
-Advantage:
-
-- out of the box error handling.
-
-Questions:
-
-- when is it acked?
-- does it run in sequence?
-- how to define an error handler?
-- how to ensure idempotent consumer?
-
 ### Batch
 
 #### How to handle exceptions in batch
 
-### DLQ
+### Dead letter topic
 
 ## Error Handlers
     

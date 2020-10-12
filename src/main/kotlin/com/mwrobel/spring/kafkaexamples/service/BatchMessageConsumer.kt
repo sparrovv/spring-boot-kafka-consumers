@@ -51,7 +51,7 @@ class BatchMessageConsumer(public val processor: MessageProcessor) {
         val result = processor.process(notNullMsgs)
 
         result.notProcessed.forEach{
-            sender.send(topic + ".dlq", it as MyMessage)
+            sender.send(topic + ".DLT", it as MyMessage)
         }
 
         ack.acknowledge()

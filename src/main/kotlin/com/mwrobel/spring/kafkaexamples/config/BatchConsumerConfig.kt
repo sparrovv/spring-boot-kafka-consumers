@@ -71,6 +71,6 @@ class BatchConsumerConfig {
 
     @Bean
     fun createMainTopicDLTIfDoesntExist(): NewTopic? {
-        return NewTopic(batchMainTopic + ".dlt", 1, 1.toShort())
+        return NewTopic(batchMainTopic + ".DLT", 1, 1.toShort())
     }
 }

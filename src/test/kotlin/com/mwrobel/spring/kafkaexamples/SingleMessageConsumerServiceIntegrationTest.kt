@@ -6,6 +6,7 @@ import com.mwrobel.spring.kafkaexamples.service.MessageProcessor
 import com.mwrobel.spring.kafkaexamples.service.TestMessageProcessor
 import org.apache.kafka.clients.consumer.Consumer
 import org.apache.kafka.clients.consumer.ConsumerConfig
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -51,6 +52,13 @@ class SingleMessageConsumerServiceIntegrationTest() {
     @Autowired
     private lateinit var kafkaManager : BatchConsumerManager
 
+    @AfterEach
+    fun afterEach():Unit {
+        val msgProcessor = identityStitchingProcessor as TestMessageProcessor
+
+        msgProcessor.reset()
+    }
+
     @Test
     fun `when no exceptions it consumes published messages in batches`() {
         val msgProcessor = identityStitchingProcessor as TestMessageProcessor
@@ -67,7 +75,7 @@ class SingleMessageConsumerServiceIntegrationTest() {
     }
 
     @Test
-    fun `when there's an exception, it retries and sends the batch to dlq topic`() {
+    fun `when there's an exception, it retries and sends the batch to dlt topic`() {
         val msgProcessorr = identityStitchingProcessor as TestMessageProcessor
         msgProcessorr.latch = CountDownLatch(2)
         val consumer = createTestConsumer(groupName = "test-group-1", topic = "${mainTopic}.DLT")

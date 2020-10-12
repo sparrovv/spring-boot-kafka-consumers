@@ -36,4 +36,9 @@ class TestMessageProcessor() : MessageProcessor {
     override fun size(): Int {
         return container.size
     }
+
+    fun reset(){
+        container.clear()
+        numberOfExceptions = 0
+    }
 }
