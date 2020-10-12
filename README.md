@@ -15,6 +15,9 @@ This test app explores [spring-kafka](https://docs.spring.io/spring-kafka/docs/2
 - Integration tests with embedded kafka
 - Manual ACKs ()
 
+![spring-kafka.png](./spring-kafka.png)
+
+
 ### One by one message listener
 
 The simplest way to start with spring kafka is to implement one by one message listener as it has a few goodies that are easy to configure:

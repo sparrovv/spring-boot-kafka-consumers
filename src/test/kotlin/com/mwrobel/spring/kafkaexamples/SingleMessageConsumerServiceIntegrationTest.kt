@@ -57,7 +57,7 @@ class SingleMessageConsumerServiceIntegrationTest() {
     }
 
     @Test
-    fun `when no exceptions it consumes published messages in batches`() {
+    fun `when no exceptions it consumes published events one by one`() {
         val msgProcessor = messageProcessor as TestMessageProcessor
         msgProcessor.latch = CountDownLatch(10)
 
@@ -72,7 +72,7 @@ class SingleMessageConsumerServiceIntegrationTest() {
     }
 
     @Test
-    fun `when there's an exception, it retries and sends the batch to dlt topic`() {
+    fun `when there's an exception, it retries and sends the event to DLT topic`() {
         val msgProcessorr = messageProcessor as TestMessageProcessor
         msgProcessorr.latch = CountDownLatch(2)
         val consumer = createTestConsumer(groupName = "test-group-1", topic = "${mainTopic}.DLT")
@@ -86,7 +86,6 @@ class SingleMessageConsumerServiceIntegrationTest() {
         assertEquals(2, messageProcessor.size())
 
         val records = KafkaTestUtils.getRecords<String, String>(consumer)
-
         assertEquals(1, records.count())
     }
 

@@ -18,13 +18,13 @@ class StartupHousekeeper {
 	lateinit var batchConsumerManager: BatchConsumerManager
 
 	@Autowired
-	lateinit var a2MsgConsumerManager: SingleMsgConsumerManager
+	lateinit var oneByOneMsgConsumer: SingleMsgConsumerManager
 
 
 	@EventListener(ContextRefreshedEvent::class)
 	fun contextRefreshedEvent():Unit {
         batchConsumerManager.start()
-		a2MsgConsumerManager.start()
+		oneByOneMsgConsumer.start()
 	}
 }
 
