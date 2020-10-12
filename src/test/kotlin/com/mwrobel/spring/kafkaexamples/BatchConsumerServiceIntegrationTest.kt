@@ -46,21 +46,21 @@ class BatchConsumerServiceIntegrationTest() {
     private lateinit var template: KafkaTemplate<String, String>
 
     @Autowired
-    private lateinit var identityStitchingProcessor: MessageProcessor
+    private lateinit var messageProcessor: MessageProcessor
 
     @Autowired
     private lateinit var kafkaManager : BatchConsumerManager
 
     @AfterEach
     fun afterEach():Unit {
-        val msgProcessor = identityStitchingProcessor as TestMessageProcessor
+        val msgProcessor = messageProcessor as TestMessageProcessor
 
         msgProcessor.reset()
     }
 
     @Test
     fun `when no exceptions it consumes published messages in batches`() {
-        val msgProcessor = identityStitchingProcessor as TestMessageProcessor
+        val msgProcessor = messageProcessor as TestMessageProcessor
         msgProcessor.latch = CountDownLatch(10)
 
         (1..10).map{
@@ -70,13 +70,13 @@ class BatchConsumerServiceIntegrationTest() {
         }
         msgProcessor.latch.await(4, java.util.concurrent.TimeUnit.SECONDS)
 
-        assertEquals(10, identityStitchingProcessor.size())
+        assertEquals(10, messageProcessor.size())
     }
 
     @Test
     fun `when there's a serialization exception it logs it`() {
         // this is not ideal :/ Must be a better way
-        val msgProcessorr = identityStitchingProcessor as TestMessageProcessor
+        val msgProcessorr = messageProcessor as TestMessageProcessor
         msgProcessorr.latch = CountDownLatch(2)
 
         this.template.send(mainTopic, """{"id" : "1", "outcome": "foo"}""")
@@ -85,12 +85,12 @@ class BatchConsumerServiceIntegrationTest() {
 
         msgProcessorr.latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
 
-        assertEquals(2, identityStitchingProcessor.size())
+        assertEquals(2, messageProcessor.size())
     }
 
     @Test
     fun `when there's an exception, it retries and sends the batch to dlt topic`() {
-        val msgProcessorr = identityStitchingProcessor as TestMessageProcessor
+        val msgProcessorr = messageProcessor as TestMessageProcessor
         msgProcessorr.maxNumberOfExceptions = 2
         msgProcessorr.latch = CountDownLatch(2)
 
@@ -100,7 +100,7 @@ class BatchConsumerServiceIntegrationTest() {
 
         msgProcessorr.latch.await(2, java.util.concurrent.TimeUnit.SECONDS)
 
-        assertEquals(2, identityStitchingProcessor.size())
+        assertEquals(2, messageProcessor.size())
 
         val consumer = createTestConsumer(groupName = "test-group", topic = "${mainTopic}.DLT")
         val records = KafkaTestUtils.getRecords<String, String>(consumer)
