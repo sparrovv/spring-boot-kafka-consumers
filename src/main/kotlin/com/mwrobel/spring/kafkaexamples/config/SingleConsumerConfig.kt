@@ -9,6 +9,7 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
@@ -26,14 +27,14 @@ import java.util.*
 
 @Configuration
 class SingleConsumerConfig {
-    @Value("\${spring.kafka.bootstrap-servers}")
-    private lateinit var bootstrapServers: String
-
     @Value("\${main.single-input.topic}")
     private lateinit var singleMainTopic: String
 
     @Autowired
     lateinit var kafkaOperationsMyEvent: KafkaOperations<String, MyEvent>
+
+    @Autowired // this has values from the application.properties
+    private lateinit var kafkaProperties: KafkaProperties
 
     // you need to name the bean if you have more concurent kafka listeners
     @Bean("singleListener")
@@ -58,10 +59,7 @@ class SingleConsumerConfig {
 
     @Bean
     fun consumerFactorySingle(): ConsumerFactory<String, MyEvent> {
-        val props: MutableMap<String, Any?> = HashMap()
-
-        props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
-        props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "latest"
+        val props = kafkaProperties.buildConsumerProperties()
 
         // Settings needed for Deserialization ErrorHandling
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java

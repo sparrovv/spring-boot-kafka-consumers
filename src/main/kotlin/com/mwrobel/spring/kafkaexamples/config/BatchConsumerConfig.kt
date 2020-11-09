@@ -9,6 +9,7 @@ import org.apache.kafka.common.serialization.StringDeserializer
 import org.apache.kafka.common.serialization.StringSerializer
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.kafka.KafkaProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.kafka.annotation.EnableKafka
@@ -27,11 +28,11 @@ import java.util.*
 @Configuration
 @EnableKafka
 class BatchConsumerConfig {
-    @Value("\${spring.kafka.bootstrap-servers}")
-    private lateinit var bootstrapServers: String
-
     @Value("\${main.batch-input.topic}")
     private lateinit var batchMainTopic: String
+
+    @Autowired // this has values from the application.properties
+    private lateinit var kafkaProperties: KafkaProperties
 
     @Bean
     fun kafkaListenerContainerFactory(): ConcurrentKafkaListenerContainerFactory<String, MyMessage> {
@@ -45,12 +46,7 @@ class BatchConsumerConfig {
 
     @Bean
     fun consumerFactory(): ConsumerFactory<String, MyMessage> {
-        val props: MutableMap<String, Any?> = HashMap()
-
-        props[ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG] = bootstrapServers
-        props[ConsumerConfig.AUTO_OFFSET_RESET_CONFIG] = "latest"
-        props[ConsumerConfig.MAX_POLL_RECORDS_CONFIG]  = "10000"
-        props[ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG]  = "false"
+        val props = kafkaProperties.buildConsumerProperties()
 
         // Settings needed for Deserialization ErrorHandling
         props[ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG] = ErrorHandlingDeserializer::class.java
